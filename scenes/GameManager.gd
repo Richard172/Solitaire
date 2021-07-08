@@ -375,7 +375,6 @@ func _move_card_to_tableau_from_foundation():
 	
 	# tableau includes card1
 	tableau[card2.pile_index].append(card1)
-	
 
 
 # when the card get clicked, this function runs, select the cards
@@ -395,29 +394,25 @@ func _select_card(card):
 		card2 = card
 		if _check_foundation_card_condition():
 			_move_card_to_foundation_from_talon_with_card()
-			_change_back_card_color(card1)
-		else:
-			_change_back_pile_card_color(card1)
+		
+		_change_back_card_color(card1)
 		card1 = null
 		card2 = null
 	# if the first card selected is from tableau, and the second card is in foundation
 	elif card1.pile_index != -1 and card1.pile_index != -2 and card.pile_index == -2 and card.can_be_placed_on_top:
 		card2 = card
-#		if _check_foundation_card_condition():
-		_move_card_to_foundation_from_tableau_with_card()
-		_change_back_card_color(card1)
-#		if not _check_foundation_card_condition():
-#			_change_back_pile_card_color(card1)
+		if _check_foundation_card_condition():
+			_move_card_to_foundation_from_tableau_with_card()
+			_change_back_card_color(card1)
+		else:
+			_change_back_pile_card_color(card1)
 		card1 = null
 		card2 = null
 	# if the first card selected is from the talon, and the second card isn't in foundation
-	elif card1.pile_index == -1 and card.pile_index != -2 and card.can_be_placed_on_top:
+	elif card1.pile_index == -1 and card1.pile_index != -2 and card.can_be_placed_on_top:
 		card2 = card
-		
 		if _check_color_condition() and _check_rank_condition():
 			_move_card_from_talon(card1, card2)
-		print(card1)
-		print(card2)
 		_change_back_card_color(card1)
 		
 		card1 = null
@@ -429,7 +424,8 @@ func _select_card(card):
 	# if the user's first card is from foundation, and the second card is in tableau
 	elif card1.pile_index == -2 and card.pile_index != -1 and card.pile_index != -2 and card.can_be_placed_on_top:
 		card2 = card
-		_move_card_to_tableau_from_foundation()
+		if _check_color_condition() and _check_rank_condition():
+			_move_card_to_tableau_from_foundation()
 		_change_back_card_color(card1)
 		card1 = null
 		card2 = null
@@ -530,6 +526,8 @@ func _move_card_to_empty_pile_from_talon(pile):
 
 # move the card from foundation to empty pile
 func _move_card_to_empty_pile_from_foundation(pile):
+	# disable the pile area
+	pile.get_node("ClickArea").get_node("Full").set_disabled(true)
 	# if the foundation pile has more than two cards, get the last card
 	if foundation_pile[card1.card_index].size() > 1:
 		var last_card_index
@@ -542,6 +540,13 @@ func _move_card_to_empty_pile_from_foundation(pile):
 	
 	# foundation pile remove card1
 	foundation_pile[card1.card_index].pop_back()
+	
+	# set the x, y position of the card
+	_set_card_y_position(card1, pile.pile_index, tableau[pile.pile_index].size())
+	_set_card_x_position(card1, pile.pile_index)
+	
+	# tableau includes card1
+	tableau[pile.pile_index].append(card1)
 
 
 # describes what happens when the user click on the pile start scene
@@ -553,14 +558,18 @@ func _select_pile_start(pile):
 	elif card1 == null and card2 != null:
 		print("Error in _select pile start, card2 is not null, but card1 is")
 	# if card1 is from talon, and card2 is not selected, and rank is K
-	elif card1.pile_index == -1 and card2 == null and card1.rank == "K":
-		# move the card to the empty pile from talon
-		_move_card_to_empty_pile_from_talon(pile)
+	elif card1.pile_index == -1 and card2 == null:
+		if card1.rank == "K":
+			# move the card to the empty pile from talon
+			_move_card_to_empty_pile_from_talon(pile)
 		_change_back_card_color(card1)
 		card1 = null
 	# if card1 is from foundation, and card2 is not selected
 	elif card1.pile_index == -2 and card2 == null:
-		_move_card_to_empty_pile_from_foundation(pile)
+		if card1.rank == "K":
+			_move_card_to_empty_pile_from_foundation(pile)
+		_change_back_card_color(card1)
+		card1 = null
 	# if the first card is selected in tableau, but the second card isn't, run this
 	# card1 can only be put on pile if the rank is K
 	elif card1.pile_index != -1 and card1.pile_index != -2 and card2 == null and card1.rank == "K":
@@ -585,6 +594,7 @@ func _move_card_to_foundation_from_talon(foundation : Foundation) -> void:
 	# -2 pile index means the card is in foundation
 	card1.pile_index = -2
 	card1.card_index = foundation.suit_index
+	card1.can_be_placed_on_top = true
 	if foundation_pile[foundation.suit_index].empty():
 		foundation.disable_click_area()
 		
@@ -635,6 +645,10 @@ func _move_card_to_foundation_from_tableau(foundation: Foundation) -> void:
 		print("Error in _move_card_to_foundation_from_talon")
 
 
+func _check_foundation_start_card(foundation) -> bool:
+	return card1.rank == "A" and card1.suit == foundation.suit
+
+
 # describes what happens when the user clicks on the foundation
 func _select_foundation(foundation):
 	# if both cards are not selected
@@ -645,8 +659,10 @@ func _select_foundation(foundation):
 		print("Error in _select foundation, card2 is not null, but card1 is")
 	# if card1 is from talon, but card2 is not
 	elif card1.pile_index == -1 and card2 == null:
-		# move the card from talon to foundation, change the card color back, set card to null
-		_move_card_to_foundation_from_talon(foundation)
+		
+		if _check_foundation_start_card(foundation):
+			# move the card from talon to foundation, change the card color back, set card to null
+			_move_card_to_foundation_from_talon(foundation)
 		_change_back_card_color(card1)
 		card1 = null
 	# if card1 is not from talon, but from tableau instead, there's no card2
@@ -655,7 +671,8 @@ func _select_foundation(foundation):
 		# and disable the card color
 		# else disable the pile card color
 		if card1.can_be_placed_on_top:
-			_move_card_to_foundation_from_tableau(foundation)
+			if _check_foundation_start_card(foundation):
+				_move_card_to_foundation_from_tableau(foundation)
 			_change_back_card_color(card1)
 		else:
 			_change_back_pile_card_color(card1)
