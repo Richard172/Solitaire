@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scenes/game/card/Card.gd" type="Script" id=1]
+[ext_resource path="res://assets/Cards/cardBack_blue5.png" type="Texture" id=2]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 69.8291, 94.6922 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 69.7609, 17.1327 )
+
+[node name="Card" type="Position2D"]
+script = ExtResource( 1 )
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+
+[node name="ClickArea" type="Area2D" parent="."]
+
+[node name="Full" type="CollisionShape2D" parent="ClickArea"]
+position = Vector2( 0, 0.415924 )
+shape = SubResource( 1 )
+disabled = true
+
+[node name="Top" type="CollisionShape2D" parent="ClickArea"]
+position = Vector2( 0.0211868, -76.9101 )
+shape = SubResource( 2 )
+disabled = true
+
+[connection signal="mouse_entered" from="ClickArea" to="." method="_on_ClickArea_mouse_entered"]
+[connection signal="mouse_exited" from="ClickArea" to="." method="_on_ClickArea_mouse_exited"]
