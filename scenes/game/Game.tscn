@@ -9,3 +9,7 @@ margin_left = 550.211
 margin_top = 2.37842
 margin_right = 600.211
 margin_bottom = 52.3784
+
+[node name="Tween" type="Tween" parent="."]
+
+[node name="Timer" type="Timer" parent="."]

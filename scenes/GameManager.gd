@@ -25,6 +25,8 @@ var foundation_pile : Array = [[], [], [], []]
 var card1 : Card = null
 var card2 : Card = null
 
+var initial_z_index : int = 0
+
 var stock
 
 var CardBack = preload("res://assets/Cards/cardBack_blue5.png")
@@ -33,7 +35,9 @@ var PileStartScene = preload("res://scenes/game/card/PileStart.tscn")
 var StockScene = preload("res://scenes/game/card/Stock.tscn")
 var FoundationScene = preload("res://scenes/game/card/Foundation.tscn")
 
-onready var GameScene = get_node("/root/Game")
+onready var GameScene : Node2D = get_node("/root/Game")
+onready var tween : Tween = get_node("/root/Game/Tween")
+onready var timer : Timer = get_node("/root/Game/Timer")
 
 # Called when the node enters the scene tree for the first time, which is at first
 func _ready():
@@ -78,16 +82,18 @@ func _deal_deck_tableau():
 			GameScene.add_child(card)
 			_set_card_index(card, pile_index, card_index)
 			
-			# change the card's x position
-			_set_card_x_position(card, pile_index)
-			
 			# if the card is most top card, then increase flipped card distance, flip the card
 			# and set the card so it can be placed on top
 			if card_index == pile_index:
 				card.is_flipped = true
 				card.can_be_placed_on_top = true
 			
-			# increase the unflipped card distance
+			card.global_position = STOCK_START_POSITION
+			
+			# change the card's x position
+			_set_card_x_position(card, pile_index)
+			
+			
 			card.global_position.y = CARD_Y_START_POSITION + card_index * CARD_Y_UNFLIPPED_MARGIN
 			
 			# push the card into tableau array
@@ -756,7 +762,15 @@ func _reset_card_to_talon():
 			card.z_index = index
 			
 			# set the global position of the card from front to bottom, flip the card
-			card.global_position = TALON_START_POSITION + Vector2(0, index * 36)
+			card.global_position = STOCK_START_POSITION
+			
+			var card_global_position = TALON_START_POSITION + Vector2(0, index * 36)
+			
+			tween.interpolate_property(card, "global_position",
+					card.global_position, card_global_position, 0.10,
+					Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
+			tween.start()
+			
 			card.is_flipped = true
 			
 			# if the card is at the very front, enable it to be clickable, else not
