@@ -33,7 +33,7 @@ var PileStartScene = preload("res://scenes/game/card/PileStart.tscn")
 var StockScene = preload("res://scenes/game/card/Stock.tscn")
 var FoundationScene = preload("res://scenes/game/card/Foundation.tscn")
 
-onready var GameScene = get_node("/root/Game/")
+onready var GameScene = get_node("/root/Game")
 
 # Called when the node enters the scene tree for the first time, which is at first
 func _ready():
@@ -770,3 +770,56 @@ func _reset_card_to_talon():
 	# if the deck is empty, set the has card property of stock to false
 	if deck.empty():
 		stock.has_card = false
+
+
+# delete the entire deck of cards
+func _delete_deck():
+	for card in deck:
+		card.queue_free()
+	deck = Array()
+
+
+func _delete_talon():
+	for card in talon_pile:
+		card.queue_free()
+	talon_pile = Array()
+
+
+func _delete_stock():
+	stock.queue_free()
+
+
+func _delete_tableau():
+	for pile in tableau:
+		for card in pile:
+			card.queue_free()
+	tableau = [[], [], [], [], [], [], []]
+	
+	for pile_start in pile_start_array:
+		pile_start.queue_free()
+	pile_start_array = Array()
+
+
+func _delete_foundation():
+	for foundation in foundation_pile:
+		for card in foundation:
+			card.queue_free()
+	foundation_pile = [[], [], [], []]
+	
+	for foundation_scene in foundation_scene_array:
+		foundation_scene.queue_free()
+	foundation_scene_array = Array()
+
+
+func _restart_game():
+	_delete_deck()
+	_delete_talon()
+	_delete_stock()
+	_delete_tableau()
+	_delete_foundation()
+	
+	_fill_deck()
+	_deal_deck_tableau()
+	_set_pile_start()
+	_set_stock()
+	_set_foundation()
