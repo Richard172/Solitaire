@@ -1,12 +1,12 @@
 extends Node
 
-const STOCK_START_POSITION : Vector2 = Vector2(100, 100)
-const TALON_START_POSITION : Vector2 = Vector2(100, 600)
-const FOUNDATION_START_POSITION : Vector2 = Vector2 (1800, 300)
+const STOCK_START_POSITION : Vector2 = Vector2(177, 290)
+const TALON_START_POSITION : Vector2 = Vector2(177, 740)
+const FOUNDATION_START_POSITION : Vector2 = Vector2 (1785, 250)
 const FOUNDATION_Y_MARGIN : int = 250
-const CARD_X_START_POSITION : int = 400
-const CARD_Y_START_POSITION : int = 300
-const CARD_X_MARGIN : int = 200
+const CARD_X_START_POSITION : int = 440
+const CARD_Y_START_POSITION : int = 200
+const CARD_X_MARGIN : int = 185
 const CARD_Y_UNFLIPPED_MARGIN : int = 30
 const CARD_Y_FLIPPED_MARGIN : int = 36
 
@@ -288,9 +288,11 @@ func _check_foundation_card_condition() -> bool:
 
 # move the card from talon to foudation, but with card in foundation
 func _move_card_to_foundation_from_talon_with_card():
+	
 	# the suit index is the card2's card index
 	var suit_index = card2.card_index
 	
+	card1.can_be_placed_on_top = true
 	# set the card pile index to -2, and its card index to the suit index
 	card1.pile_index = -2
 	card1.card_index = suit_index
@@ -309,6 +311,9 @@ func _move_card_to_foundation_from_talon_with_card():
 		card1.global_position = card2.global_position
 		# foundation pile adds one card
 		foundation_pile[suit_index].append(card1)
+		
+		# game scene remove card 2
+		GameScene.remove_child(card2)
 	else:
 		print("error in _move_card_to_foundation_from_talon_with_card()")
 
@@ -319,6 +324,7 @@ func _move_card_to_foundation_from_tableau_with_card():
 	var suit_index = card2.card_index
 	
 	if not foundation_pile[suit_index].empty():
+		print(1)
 		# if the card is at the very back, enable the pile start scene's click area
 		if card1.card_index == 0:
 			var click_area = pile_start_array[card1.pile_index].get_node("ClickArea")
