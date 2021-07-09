@@ -35,10 +35,8 @@ var PileStartScene = preload("res://scenes/game/card/PileStart.tscn")
 var StockScene = preload("res://scenes/game/card/Stock.tscn")
 var FoundationScene = preload("res://scenes/game/card/Foundation.tscn")
 
-onready var GameScene : Node2D = get_node("/root/Game")
-onready var tween : Tween = get_node("/root/Game/Tween")
-onready var timer : Timer = get_node("/root/Game/Timer")
-
+onready var GameScene : Node2D = get_node("/root/Solitaire/Game")
+onready var tween : Tween = get_node("/root/Solitaire/Game/Tween")
 # Called when the node enters the scene tree for the first time, which is at first
 func _ready():
 	# randomize the seed
@@ -78,8 +76,9 @@ func _deal_deck_tableau():
 	for pile_index in range(tableau.size()):
 		for card_index in range(pile_index + 1):
 			var card = deck.pop_back()
-			# introduce the card into the game scene, set their card index
+			# add card to the game scene
 			GameScene.add_child(card)
+			# introduce the card into the game scene, set their card index
 			_set_card_index(card, pile_index, card_index)
 			
 			# if the card is most top card, then increase flipped card distance, flip the card

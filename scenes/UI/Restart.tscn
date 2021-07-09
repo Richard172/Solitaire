@@ -4,6 +4,7 @@
 [ext_resource path="res://scenes/UI/Restart.gd" type="Script" id=2]
 
 [node name="Restart" type="TextureButton"]
+pause_mode = 2
 margin_right = 40.0
 margin_bottom = 40.0
 texture_normal = ExtResource( 1 )
