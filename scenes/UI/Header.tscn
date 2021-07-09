@@ -1,18 +1,11 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://scenes/UI/Restart.tscn" type="PackedScene" id=1]
-[ext_resource path="res://assets/Icons/pause.png" type="Texture" id=2]
-[ext_resource path="res://scenes/UI/Restart.gd" type="Script" id=3]
 [ext_resource path="res://scenes/UI/Pause.tscn" type="PackedScene" id=4]
-[ext_resource path="res://scenes/UI/Audio.gd" type="Script" id=5]
 [ext_resource path="res://assets/Kenney Blocks.ttf" type="DynamicFontData" id=6]
 [ext_resource path="res://scenes/UI/Audio.tscn" type="PackedScene" id=7]
 [ext_resource path="res://scenes/UI/MoveCounter.tscn" type="PackedScene" id=8]
 [ext_resource path="res://scenes/UI/Timer.tscn" type="PackedScene" id=9]
-[ext_resource path="res://scenes/UI/MoveCounter.gd" type="Script" id=10]
-[ext_resource path="res://scenes/UI/Pause.gd" type="Script" id=11]
-[ext_resource path="res://scenes/UI/Timer.gd" type="Script" id=12]
-[ext_resource path="res://assets/Icons/return.png" type="Texture" id=13]
 
 [sub_resource type="DynamicFont" id=1]
 size = 45
@@ -34,16 +27,14 @@ margin_right = 275.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
-[node name="Timer" type="Label" parent="Timer" instance=ExtResource( 9 )]
+[node name="Timer" parent="Timer" instance=ExtResource( 9 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
 margin_left = 137.0
 margin_right = 137.0
 margin_bottom = 69.0
 size_flags_horizontal = 3
 custom_fonts/font = SubResource( 1 )
-script = ExtResource( 12 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Moves" type="CenterContainer" parent="."]
 margin_left = 279.0
@@ -51,15 +42,11 @@ margin_right = 554.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
-[node name="MoveCounter" type="Label" parent="Moves" instance=ExtResource( 8 )]
+[node name="MoveCounter" parent="Moves" instance=ExtResource( 8 )]
 margin_left = 137.0
 margin_right = 137.0
 margin_bottom = 69.0
 custom_fonts/font = SubResource( 2 )
-script = ExtResource( 10 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="VSeparator2" type="VSeparator" parent="."]
 margin_left = 558.0
@@ -68,33 +55,9 @@ margin_bottom = 70.0
 size_flags_horizontal = 3
 custom_styles/separator = SubResource( 3 )
 
-[node name="Audio" type="CenterContainer" parent="."]
+[node name="Row" type="HBoxContainer" parent="."]
 margin_left = 837.0
 margin_right = 1112.0
-margin_bottom = 70.0
-size_flags_horizontal = 3
-
-[node name="Audio" type="HBoxContainer" parent="Audio" instance=ExtResource( 7 )]
-pause_mode = 2
-margin_left = 2.0
-margin_top = 10.0
-margin_right = 272.0
-margin_bottom = 60.0
-script = ExtResource( 5 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="VSeparator" type="VSeparator" parent="."]
-margin_left = 1116.0
-margin_right = 1391.0
-margin_bottom = 70.0
-size_flags_horizontal = 3
-custom_styles/separator = SubResource( 3 )
-
-[node name="Row" type="HBoxContainer" parent="."]
-margin_left = 1395.0
-margin_right = 1670.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
@@ -103,17 +66,11 @@ margin_right = 135.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
-[node name="Pause" type="TextureButton" parent="Row/Pause" instance=ExtResource( 4 )]
-pause_mode = 2
+[node name="Pause" parent="Row/Pause" instance=ExtResource( 4 )]
 margin_left = 42.0
 margin_top = 10.0
 margin_right = 92.0
 margin_bottom = 60.0
-texture_normal = ExtResource( 2 )
-script = ExtResource( 11 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Restart" type="CenterContainer" parent="Row"]
 margin_left = 139.0
@@ -121,17 +78,30 @@ margin_right = 275.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
-[node name="Restart" type="TextureButton" parent="Row/Restart" instance=ExtResource( 1 )]
-pause_mode = 2
+[node name="Restart" parent="Row/Restart" instance=ExtResource( 1 )]
 margin_left = 43.0
 margin_top = 10.0
 margin_right = 93.0
 margin_bottom = 60.0
-texture_normal = ExtResource( 13 )
-script = ExtResource( 3 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+
+[node name="VSeparator" type="VSeparator" parent="."]
+margin_left = 1116.0
+margin_right = 1391.0
+margin_bottom = 70.0
+size_flags_horizontal = 3
+custom_styles/separator = SubResource( 3 )
+
+[node name="Audio" type="CenterContainer" parent="."]
+margin_left = 1395.0
+margin_right = 1670.0
+margin_bottom = 70.0
+size_flags_horizontal = 3
+
+[node name="Audio" parent="Audio" instance=ExtResource( 7 )]
+margin_left = 2.0
+margin_top = 10.0
+margin_right = 272.0
+margin_bottom = 60.0
 
 [node name="VSeparator3" type="VSeparator" parent="."]
 margin_left = 1674.0
@@ -139,6 +109,3 @@ margin_right = 1950.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 custom_styles/separator = SubResource( 3 )
-
-[connection signal="pressed" from="Row/Pause/Pause" to="Row/Pause/Pause" method="_on_Pause_pressed"]
-[connection signal="pressed" from="Row/Restart/Restart" to="Row/Restart/Restart" method="_on_Restart_pressed"]

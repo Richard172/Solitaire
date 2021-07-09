@@ -5,6 +5,7 @@ const ONE_MINUTE : int = 60
 const ONE_HOUR : int = 3600
 
 var paused : bool = false
+var time_text : String
 
 onready var time: float = 0.0
 
@@ -19,12 +20,13 @@ func _process(delta):
 	
 
 func _show_timer():
-	var hours : int = time / 60
-	var minutes : int = fmod(time, ONE_HOUR) / 60
+	var hours : int = time / ONE_HOUR
+	var minutes : int = fmod(time / 60, 60)
 	var seconds : int = fmod(time, ONE_MINUTE)
 	
 	var text = "%02d:%02d:%02d"
-	set_text(text % [hours, minutes, seconds])
+	time_text = text % [hours, minutes, seconds]
+	set_text(time_text)
 
 
 func reset_timer():

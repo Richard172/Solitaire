@@ -35,8 +35,14 @@ var PileStartScene = preload("res://scenes/game/card/PileStart.tscn")
 var StockScene = preload("res://scenes/game/card/Stock.tscn")
 var FoundationScene = preload("res://scenes/game/card/Foundation.tscn")
 
+
 onready var GameScene : Node2D = get_node("/root/Solitaire/Game")
 onready var tween : Tween = get_node("/root/Solitaire/Game/Tween")
+onready var MoveCounter : Label = get_node("/root/Solitaire/UserInterface/Header/Moves/MoveCounter")
+onready var TimerScene : Label = get_node("/root/Solitaire/UserInterface/Header/Timer/Timer")
+onready var WinningScreen : PopupPanel = get_node("/root/Solitaire/WinningScreen")
+
+
 # Called when the node enters the scene tree for the first time, which is at first
 func _ready():
 	# randomize the seed
@@ -46,6 +52,8 @@ func _ready():
 	_set_pile_start()
 	_set_stock()
 	_set_foundation()
+	
+	_connect_winning_screen_restart()
 
 
 # fill the entire deck with 52 cards, called at the start of the game
@@ -147,6 +155,12 @@ func _set_foundation():
 		foundation_scene_array.append(foundation)
 
 
+# connect the winning screen restart button to this screen
+func _connect_winning_screen_restart():
+	var restart_button = WinningScreen.get_node("CenterContainer").get_node("VBoxContainer").get_node("Button")
+	restart_button.connect("pressed", self, "_start_new_game")
+
+
 # set the pile index, card index of the file
 # set the z index to get the card rendering position right
 func _set_card_index(card, pile_index, card_index):
@@ -231,6 +245,9 @@ func _move_card(card_1, card_2):
 		_set_card_y_position(removed_card, card_2.pile_index, tableau[card_2.pile_index].size())
 		_set_card_x_position(removed_card, card_2.pile_index)
 		tableau[card_2.pile_index].append(removed_card)
+	
+	# increment the move counter
+	MoveCounter.counter += 1
 
 
 # reset the talon cards, used for _select_card
@@ -276,6 +293,9 @@ func _move_card_from_talon(card_1, card_2):
 	_set_card_x_position(card1, card2.pile_index)
 	
 	tableau[card2.pile_index].append(card1)
+	
+	# increment the move counter
+	MoveCounter.counter += 1
 
 
 # check the card condition for the foundation
@@ -319,6 +339,9 @@ func _move_card_to_foundation_from_talon_with_card():
 		
 		# game scene remove card 2
 		GameScene.remove_child(card2)
+		
+		# increment the move counter
+		MoveCounter.counter += 1
 	else:
 		print("error in _move_card_to_foundation_from_talon_with_card()")
 
@@ -358,6 +381,9 @@ func _move_card_to_foundation_from_tableau_with_card():
 		
 		# remove card2
 		GameScene.remove_child(card2)
+		
+		# increment the move counter
+		MoveCounter.counter += 1
 	else:
 		print("error in _move_card_to_foundation_from_talon_with_card()")
 
@@ -386,6 +412,9 @@ func _move_card_to_tableau_from_foundation():
 	
 	# tableau includes card1
 	tableau[card2.pile_index].append(card1)
+	
+	# increment the move counter
+	MoveCounter.counter += 1
 
 
 # when the card get clicked, this function runs, select the cards
@@ -409,6 +438,9 @@ func _select_card(card):
 		_change_back_card_color(card1)
 		card1 = null
 		card2 = null
+		
+		# check if the player wins after the current move
+		_show_win_screen_if_wins()
 	# if the first card selected is from tableau, and the second card is in foundation
 	elif card1.pile_index != -1 and card1.pile_index != -2 and card.pile_index == -2 and card.can_be_placed_on_top:
 		card2 = card
@@ -419,15 +451,22 @@ func _select_card(card):
 			_change_back_pile_card_color(card1)
 		card1 = null
 		card2 = null
+		
+		# check if the player wins after the current move
+		_show_win_screen_if_wins()
 	# if the first card selected is from the talon, and the second card isn't in foundation
 	elif card1.pile_index == -1 and card1.pile_index != -2 and card.can_be_placed_on_top:
 		card2 = card
 		if _check_color_condition() and _check_rank_condition():
 			_move_card_from_talon(card1, card2)
+		
 		_change_back_card_color(card1)
 		
 		card1 = null
 		card2 = null
+		
+		# check if the player wins after the current move
+		_show_win_screen_if_wins()
 	# if the user's first card is from talon, but the second card can't be placed on top
 	elif card1.pile_index == -1 and not card.can_be_placed_on_top:
 		_change_back_card_color(card1)
@@ -440,6 +479,9 @@ func _select_card(card):
 		_change_back_card_color(card1)
 		card1 = null
 		card2 = null
+		
+		# check if the player wins after the current move
+		_show_win_screen_if_wins()
 	# if the user's first card is from foundation, but the second card isn't in tableau
 	elif card1.pile_index == -2:
 		_change_back_card_color(card1)
@@ -464,6 +506,9 @@ func _select_card(card):
 		# reset card1 and card2
 		card1 = null
 		card2 = null
+		
+		# check if the player wins after the current move
+		_show_win_screen_if_wins()
 	# if there's no card2, but card2 can't be placed on top
 	elif card2 == null and not card.can_be_placed_on_top:
 		# if card2 can't be put on top, print it
@@ -508,6 +553,9 @@ func _move_card_to_empty_pile(pile):
 		_set_card_y_position(removed_card, pile.pile_index, tableau[pile.pile_index].size())
 		_set_card_x_position(removed_card, pile.pile_index)
 		tableau[pile.pile_index].append(removed_card)
+	
+	# increment the move counter
+	MoveCounter.counter += 1
 
 
 # move the card from talon to empty pile
@@ -533,6 +581,9 @@ func _move_card_to_empty_pile_from_talon(pile):
 	_set_card_x_position(card1, pile.pile_index)
 	
 	tableau[pile.pile_index].append(card1)
+	
+	# increment the move counter
+	MoveCounter.counter += 1
 
 
 # move the card from foundation to empty pile
@@ -558,6 +609,9 @@ func _move_card_to_empty_pile_from_foundation(pile):
 	
 	# tableau includes card1
 	tableau[pile.pile_index].append(card1)
+	
+	# increment the move counter
+	MoveCounter.counter += 1
 
 
 # describes what happens when the user click on the pile start scene
@@ -622,6 +676,9 @@ func _move_card_to_foundation_from_talon(foundation : Foundation) -> void:
 		card1.global_position = foundation.global_position
 		# foundation pile adds one card
 		foundation_pile[foundation.suit_index].append(card1)
+		
+		# increment the move counter
+		MoveCounter.counter += 1
 	else:
 		print("Error in _move_card_to_foundation_from_talon")
 
@@ -652,10 +709,14 @@ func _move_card_to_foundation_from_tableau(foundation: Foundation) -> void:
 		# set card1's pile index and card index to foundation's
 		card1.pile_index = -2
 		card1.card_index = foundation.suit_index
+		
+		# increment the move counter
+		MoveCounter.counter += 1
 	else:
 		print("Error in _move_card_to_foundation_from_talon")
 
 
+# check the starting card of the foundation
 func _check_foundation_start_card(foundation) -> bool:
 	return card1.rank == "A" and card1.suit == foundation.suit
 
@@ -676,6 +737,9 @@ func _select_foundation(foundation):
 			_move_card_to_foundation_from_talon(foundation)
 		_change_back_card_color(card1)
 		card1 = null
+		
+		# check if the player wins after the current move
+		_show_win_screen_if_wins()
 	# if card1 is not from talon, but from tableau instead, there's no card2
 	elif card1.pile_index != -1 and card1.pile_index != -2 and card2 == null:
 		# if card1 is at top of the tableau, move the card to foundation
@@ -688,6 +752,9 @@ func _select_foundation(foundation):
 		else:
 			_change_back_pile_card_color(card1)
 		card1 = null
+		
+		# check if the player wins after the current move
+		_show_win_screen_if_wins()
 	# if card1 is from foundation, cancel the selection
 	elif card1.pile_index == -2:
 		_change_back_card_color(card1)
@@ -727,6 +794,9 @@ func _reset_deck():
 	deck = talon_pile.duplicate()
 	talon_pile.clear()
 	stock.has_card = true
+	
+	# increment the move counter
+	MoveCounter.counter += 1
 
 
 # reset the card each time stock is clicked
@@ -746,7 +816,10 @@ func _reset_card_to_talon():
 	else:
 		# if a card is selected and then press reset, that card gets removed
 		if card1 != null:
-			_change_back_card_color(card1)
+			if card1.pile_index != -1 and card1.pile_index != -2:
+				_change_back_pile_card_color(card1)
+			else:
+				_change_back_card_color(card1)
 			card1 = null
 		# pop maximum of 3 cards from the deck, set their pile index to -1
 		# append them in the front of the talon pile
@@ -779,6 +852,9 @@ func _reset_card_to_talon():
 				card.clickable = false
 			
 			talon_pile.push_front(card)
+		
+		# increment the move counter
+		MoveCounter.counter += 1
 	
 	# if the deck is empty, set the has card property of stock to false
 	if deck.empty():
@@ -824,6 +900,7 @@ func _delete_foundation():
 	foundation_scene_array = Array()
 
 
+# restart the game and restart all the scene
 func _restart_game():
 	_delete_deck()
 	_delete_talon()
@@ -836,3 +913,80 @@ func _restart_game():
 	_set_pile_start()
 	_set_stock()
 	_set_foundation()
+	TimerScene.reset_timer()
+	MoveCounter.reset_counter()
+
+
+func _check_winning_condition_tableau() -> bool:
+	var perfect_pile_counter : int = 0
+	var empty_pile_counter : int = 0
+	# check how many of piles have 13 cards, and how many have 0
+	for pile in tableau:
+		if pile.size() == 13:
+			perfect_pile_counter += 1
+		elif pile.size() == 0:
+			empty_pile_counter += 1
+	# if there are 4 pile of 13 cards, and 3 pile of 0 card, return true
+	# else false
+	if perfect_pile_counter == 4 and empty_pile_counter == 3:
+		return true
+	else:
+		return false
+
+
+func _check_winning_condition_foundation() -> bool:
+	var perfect_foundation_counter : int = 0
+	# check how many foundations have 13 cards
+	for foundation in foundation_pile:
+		if foundation.size() == 13:
+			perfect_foundation_counter += 1
+	# if there are 4 piles of 13 cards, return true, else false
+	if perfect_foundation_counter == 4:
+		return true
+	else:
+		return false
+
+
+# check whether the player wins the game
+func _check_winning_condition() -> bool:
+	# if any 2 of the winning condition applies, the player wins the game. else return false
+	if _check_winning_condition_tableau() or _check_winning_condition_foundation():
+		return true
+	else:
+		return false
+
+
+# delete the entire game cards part
+func _delete_game():
+	_delete_deck()
+	_delete_talon()
+	_delete_stock()
+	_delete_tableau()
+	_delete_foundation()
+
+
+# start a new game by filling the deck, and reset the timer and move counter
+func _start_new_game():
+	WinningScreen.hide()
+	
+	_fill_deck()
+	_deal_deck_tableau()
+	_set_pile_start()
+	_set_stock()
+	_set_foundation()
+	TimerScene.reset_timer()
+	MoveCounter.reset_counter()
+
+
+func _set_win_screen_message():
+	var label = WinningScreen.get_node("CenterContainer").get_node("VBoxContainer").get_node("Label")
+	label.set_text("Congratulations! You have beat the game in " + TimerScene.time_text + \
+	" with " + str(MoveCounter.counter) + " moves. Thank you for trying out my frist godot game. ;)")
+
+
+# check if the user wins the game every turn, if the user wins, delete the game, and shows the winning screen
+func _show_win_screen_if_wins():
+	if _check_winning_condition():
+		_delete_game()
+		_set_win_screen_message()
+		WinningScreen.show()
