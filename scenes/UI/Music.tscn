@@ -1,0 +1,43 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://assets/Icons/bar_foreground2.png" type="Texture" id=1]
+[ext_resource path="res://assets/Icons/musicOn.png" type="Texture" id=2]
+[ext_resource path="res://assets/Icons/bar_background.png" type="Texture" id=3]
+[ext_resource path="res://scenes/UI/Music.gd" type="Script" id=4]
+[ext_resource path="res://scenes/UI/MusicIcon.gd" type="Script" id=5]
+
+[node name="Music" type="HBoxContainer"]
+pause_mode = 2
+margin_right = 55.0
+margin_bottom = 50.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Icon" type="TextureRect" parent="."]
+margin_right = 50.0
+margin_bottom = 50.0
+texture = ExtResource( 2 )
+script = ExtResource( 5 )
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+margin_left = 54.0
+margin_right = 270.0
+margin_bottom = 50.0
+
+[node name="MusicBar" type="TextureProgress" parent="CenterContainer"]
+margin_top = 16.0
+margin_right = 216.0
+margin_bottom = 34.0
+value = 25.0
+texture_under = ExtResource( 3 )
+texture_progress = ExtResource( 1 )
+
+[connection signal="mouse_entered" from="Icon" to="." method="_on_Icon_mouse_entered"]
+[connection signal="mouse_exited" from="Icon" to="." method="_on_Icon_mouse_exited"]
+[connection signal="turn_volume_off" from="Icon" to="." method="_on_Icon_turn_volume_off"]
+[connection signal="turn_volume_on" from="Icon" to="." method="_on_Icon_turn_volume_on"]
+[connection signal="mouse_entered" from="CenterContainer/MusicBar" to="." method="_on_MusicBar_mouse_entered"]
+[connection signal="mouse_exited" from="CenterContainer/MusicBar" to="." method="_on_MusicBar_mouse_exited"]
+[connection signal="value_changed" from="CenterContainer/MusicBar" to="." method="_on_MusicBar_value_changed"]

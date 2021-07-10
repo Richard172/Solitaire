@@ -1,12 +1,30 @@
 extends HBoxContainer
 
-
-onready var icon = $Icon
-onready var audio_bar = $CenterContainer/AudioBar
+const MAX_VOLUME : float = 10.0
+const MIN_VOLUME : float = 0.0
 
 var is_mouse_on_icon : bool = false
 var is_mouse_on_audio_bar : bool = false
 var is_dragging_audio_bar : bool = false
+
+onready var icon = $Icon
+onready var audio_bar = $CenterContainer/AudioBar
+
+onready var ShuffleSound : AudioStreamPlayer = get_node("/root/Shuffle")
+onready var PlaceCardSound : AudioStreamPlayer = get_node("/root/PlaceCard")
+onready var SlideCardSound : AudioStreamPlayer = get_node("/root/SlideCard")
+onready var ClickSound : AudioStreamPlayer = get_node("/root/Click")
+onready var RestartSound : AudioStreamPlayer = get_node("/root/Restart")
+onready var PauseSound : AudioStreamPlayer = get_node("/root/Switch")
+
+
+func _ready():
+	ShuffleSound.add_to_group("sound_effect")
+	PlaceCardSound.add_to_group("sound_effect")
+	SlideCardSound.add_to_group("sound_effect")
+	ClickSound.add_to_group("sound_effect")
+	RestartSound.add_to_group("sound_effect")
+	PauseSound.add_to_group("sound_effect")
 
 
 func _input(event):
@@ -37,9 +55,11 @@ func _drag_audio_bar():
 
 func _on_AudioBar_value_changed(value):
 	if value == 0:
-		icon.is_volume_on = 0
+		icon.is_volume_on = false
+		get_tree().call_group("sound_effect", "set_volume_db", -80)
 	if value != 0:
 		icon.texture = icon.audio_on_sprite
+		get_tree().call_group("sound_effect", "set_volume_db", (MAX_VOLUME - MIN_VOLUME) * value / audio_bar.max_value + MIN_VOLUME)
 
 
 func _on_AudioBar_mouse_entered():

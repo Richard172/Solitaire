@@ -1,6 +1,8 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://scenes/UI/Restart.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scenes/UI/Music.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/UI/Pitch.tscn" type="PackedScene" id=3]
 [ext_resource path="res://scenes/UI/Pause.tscn" type="PackedScene" id=4]
 [ext_resource path="res://assets/Kenney Blocks.ttf" type="DynamicFontData" id=6]
 [ext_resource path="res://scenes/UI/Audio.tscn" type="PackedScene" id=7]
@@ -11,100 +13,133 @@
 size = 45
 font_data = ExtResource( 6 )
 
+[sub_resource type="StyleBoxEmpty" id=3]
+
 [sub_resource type="DynamicFont" id=2]
 size = 45
 font_data = ExtResource( 6 )
-
-[sub_resource type="StyleBoxEmpty" id=3]
 
 [node name="Header" type="HBoxContainer"]
 margin_right = 1950.0
 margin_bottom = 70.0
 rect_min_size = Vector2( 0, 70 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Timer" type="CenterContainer" parent="."]
-margin_right = 275.0
+margin_right = 157.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
 [node name="Timer" parent="Timer" instance=ExtResource( 9 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 137.0
-margin_right = 137.0
+margin_left = 78.0
+margin_right = 78.0
 margin_bottom = 69.0
 size_flags_horizontal = 3
 custom_fonts/font = SubResource( 1 )
 
+[node name="VSeparator4" type="VSeparator" parent="."]
+margin_left = 161.0
+margin_right = 319.0
+margin_bottom = 70.0
+size_flags_horizontal = 3
+custom_styles/separator = SubResource( 3 )
+
 [node name="Moves" type="CenterContainer" parent="."]
-margin_left = 279.0
-margin_right = 554.0
+margin_left = 323.0
+margin_right = 481.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
 [node name="MoveCounter" parent="Moves" instance=ExtResource( 8 )]
-margin_left = 137.0
-margin_right = 137.0
+margin_left = 79.0
+margin_right = 79.0
 margin_bottom = 69.0
 custom_fonts/font = SubResource( 2 )
 
 [node name="VSeparator2" type="VSeparator" parent="."]
-margin_left = 558.0
-margin_right = 833.0
+margin_left = 485.0
+margin_right = 642.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 custom_styles/separator = SubResource( 3 )
 
 [node name="Row" type="HBoxContainer" parent="."]
-margin_left = 837.0
-margin_right = 1112.0
+margin_left = 646.0
+margin_right = 804.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
 [node name="Pause" type="CenterContainer" parent="Row"]
-margin_right = 135.0
+margin_right = 77.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
 [node name="Pause" parent="Row/Pause" instance=ExtResource( 4 )]
-margin_left = 42.0
+margin_left = 13.0
 margin_top = 10.0
-margin_right = 92.0
+margin_right = 63.0
 margin_bottom = 60.0
 
 [node name="Restart" type="CenterContainer" parent="Row"]
-margin_left = 139.0
-margin_right = 275.0
+margin_left = 81.0
+margin_right = 158.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
 [node name="Restart" parent="Row/Restart" instance=ExtResource( 1 )]
-margin_left = 43.0
+margin_left = 13.0
 margin_top = 10.0
-margin_right = 93.0
+margin_right = 63.0
 margin_bottom = 60.0
 
 [node name="VSeparator" type="VSeparator" parent="."]
-margin_left = 1116.0
-margin_right = 1391.0
+margin_left = 808.0
+margin_right = 966.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 custom_styles/separator = SubResource( 3 )
 
-[node name="Audio" type="CenterContainer" parent="."]
-margin_left = 1395.0
-margin_right = 1670.0
+[node name="Row2" type="HBoxContainer" parent="."]
+margin_left = 970.0
+margin_right = 1788.0
+margin_bottom = 70.0
+
+[node name="Music" type="CenterContainer" parent="Row2"]
+margin_right = 270.0
+margin_bottom = 70.0
+
+[node name="Music" parent="Row2/Music" instance=ExtResource( 2 )]
+margin_top = 10.0
+margin_right = 270.0
+margin_bottom = 60.0
+
+[node name="Audio" type="CenterContainer" parent="Row2"]
+margin_left = 274.0
+margin_right = 544.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
-[node name="Audio" parent="Audio" instance=ExtResource( 7 )]
-margin_left = 2.0
+[node name="Audio" parent="Row2/Audio" instance=ExtResource( 7 )]
 margin_top = 10.0
-margin_right = 272.0
+margin_right = 270.0
+margin_bottom = 60.0
+
+[node name="Pitch" type="CenterContainer" parent="Row2"]
+margin_left = 548.0
+margin_right = 818.0
+margin_bottom = 70.0
+
+[node name="Pitch" parent="Row2/Pitch" instance=ExtResource( 3 )]
+margin_top = 10.0
+margin_right = 270.0
 margin_bottom = 60.0
 
 [node name="VSeparator3" type="VSeparator" parent="."]
-margin_left = 1674.0
+margin_left = 1792.0
 margin_right = 1950.0
 margin_bottom = 70.0
 size_flags_horizontal = 3

@@ -42,6 +42,11 @@ onready var MoveCounter : Label = get_node("/root/Solitaire/UserInterface/Header
 onready var TimerScene : Label = get_node("/root/Solitaire/UserInterface/Header/Timer/Timer")
 onready var WinningScreen : PopupPanel = get_node("/root/Solitaire/WinningScreen")
 
+onready var ShuffleSound : AudioStreamPlayer = get_node("/root/Shuffle")
+onready var PlaceCardSound : AudioStreamPlayer = get_node("/root/PlaceCard")
+onready var SlideCardSound : AudioStreamPlayer = get_node("/root/SlideCard")
+onready var ClickSound : AudioStreamPlayer = get_node("/root/Click")
+
 
 # Called when the node enters the scene tree for the first time, which is at first
 func _ready():
@@ -222,6 +227,8 @@ func _move_card(card_1, card_2):
 	if card_1.card_index == 0:
 		var click_area = pile_start_array[card_1_original_pile_index].get_node("ClickArea")
 		click_area.get_node("Full").set_disabled(false)
+		# set the index of the click area to be 1
+		pile_start_array[card_1_original_pile_index].z_index = 1
 	
 	# if the card is not at the very back, flip the previous card
 	# The previous card is now on top
@@ -245,6 +252,8 @@ func _move_card(card_1, card_2):
 		_set_card_y_position(removed_card, card_2.pile_index, tableau[card_2.pile_index].size())
 		_set_card_x_position(removed_card, card_2.pile_index)
 		tableau[card_2.pile_index].append(removed_card)
+	
+	PlaceCardSound._set_playing(true)
 	
 	# increment the move counter
 	MoveCounter.counter += 1
@@ -294,6 +303,9 @@ func _move_card_from_talon(card_1, card_2):
 	
 	tableau[card2.pile_index].append(card1)
 	
+	# play the play card sound
+	PlaceCardSound._set_playing(true)
+	
 	# increment the move counter
 	MoveCounter.counter += 1
 
@@ -313,6 +325,9 @@ func _check_foundation_card_condition() -> bool:
 
 # move the card from talon to foudation, but with card in foundation
 func _move_card_to_foundation_from_talon_with_card():
+	
+	if card1.z_index == 0:
+		card1.z_index = 1
 	
 	# the suit index is the card2's card index
 	var suit_index = card2.card_index
@@ -340,6 +355,9 @@ func _move_card_to_foundation_from_talon_with_card():
 		# game scene remove card 2
 		GameScene.remove_child(card2)
 		
+		# play the play card sound
+		PlaceCardSound._set_playing(true)
+		
 		# increment the move counter
 		MoveCounter.counter += 1
 	else:
@@ -351,12 +369,16 @@ func _move_card_to_foundation_from_tableau_with_card():
 	# the suit index is the card2's card index
 	var suit_index = card2.card_index
 	
+	if card1.z_index == 0:
+		card1.z_index = 1
+	
 	if not foundation_pile[suit_index].empty():
-		print(1)
 		# if the card is at the very back, enable the pile start scene's click area
 		if card1.card_index == 0:
 			var click_area = pile_start_array[card1.pile_index].get_node("ClickArea")
 			click_area.get_node("Full").set_disabled(false)
+			# set the index of the click area to be 1
+			pile_start_array[card1.pile_index].z_index = 1
 		# if the card is not at the very back, flip the previous card
 		# The previous card is now on top
 		elif card1.card_index > 0:
@@ -381,6 +403,9 @@ func _move_card_to_foundation_from_tableau_with_card():
 		
 		# remove card2
 		GameScene.remove_child(card2)
+		
+		# play the play card sound
+		PlaceCardSound._set_playing(true)
 		
 		# increment the move counter
 		MoveCounter.counter += 1
@@ -413,6 +438,9 @@ func _move_card_to_tableau_from_foundation():
 	# tableau includes card1
 	tableau[card2.pile_index].append(card1)
 	
+	# play the play card sound
+	PlaceCardSound._set_playing(true)
+	
 	# increment the move counter
 	MoveCounter.counter += 1
 
@@ -423,17 +451,24 @@ func _select_card(card):
 	if card1 == null and card.pile_index != -1 and card.pile_index != -2:
 		# change the card1 and below card's color
 		card1 = card
+		# play the click sound
+		ClickSound._set_playing(true)
 		# disable all the card area below card1
 		_change_pile_card_color(card1)
 	# if the card1 is from talon
 	elif card1 == null and (card.pile_index == -1 or card.pile_index == -2):
 		card1 = card
+		# play the click sound
+		ClickSound._set_playing(true)
 		_change_card_color(card1)
 	# if the first card selected is from talon, and the second card is in foundation
 	elif card1.pile_index == -1 and card.pile_index == -2:
 		card2 = card
 		if _check_foundation_card_condition():
 			_move_card_to_foundation_from_talon_with_card()
+		else:
+			# play the click sound
+			ClickSound._set_playing(true)
 		
 		_change_back_card_color(card1)
 		card1 = null
@@ -448,6 +483,8 @@ func _select_card(card):
 			_move_card_to_foundation_from_tableau_with_card()
 			_change_back_card_color(card1)
 		else:
+			# play the click sound
+			ClickSound._set_playing(true)
 			_change_back_pile_card_color(card1)
 		card1 = null
 		card2 = null
@@ -459,7 +496,9 @@ func _select_card(card):
 		card2 = card
 		if _check_color_condition() and _check_rank_condition():
 			_move_card_from_talon(card1, card2)
-		
+		else:
+			# play the click sound
+			ClickSound._set_playing(true)
 		_change_back_card_color(card1)
 		
 		card1 = null
@@ -470,12 +509,17 @@ func _select_card(card):
 	# if the user's first card is from talon, but the second card can't be placed on top
 	elif card1.pile_index == -1 and not card.can_be_placed_on_top:
 		_change_back_card_color(card1)
+		# play the click sound
+		ClickSound._set_playing(true)
 		card1 = null
 	# if the user's first card is from foundation, and the second card is in tableau
 	elif card1.pile_index == -2 and card.pile_index != -1 and card.pile_index != -2 and card.can_be_placed_on_top:
 		card2 = card
 		if _check_color_condition() and _check_rank_condition():
 			_move_card_to_tableau_from_foundation()
+		else:
+			# play the click sound
+			ClickSound._set_playing(true)
 		_change_back_card_color(card1)
 		card1 = null
 		card2 = null
@@ -485,10 +529,14 @@ func _select_card(card):
 	# if the user's first card is from foundation, but the second card isn't in tableau
 	elif card1.pile_index == -2:
 		_change_back_card_color(card1)
+		# play the click sound
+		ClickSound._set_playing(true)
 		card1 = null
 	# if the user click on the same card pile again, reset the user's click
 	elif card1.pile_index == card.pile_index:
 		_change_back_pile_card_color(card1)
+		# play the click sound
+		ClickSound._set_playing(true)
 		card1 = null
 	# if there's card1, but no card2, and the new card can be put on top by another card
 	# then set the card2 to be the new card
@@ -500,6 +548,9 @@ func _select_card(card):
 		if _check_color_condition() and _check_rank_condition():
 			# move card1 to card2 location
 			_move_card(card1, card2)
+		else:
+			# play the click sound
+			ClickSound._set_playing(true)
 		# change the card color back
 		_change_back_pile_card_color(card1)
 		
@@ -513,6 +564,8 @@ func _select_card(card):
 	elif card2 == null and not card.can_be_placed_on_top:
 		# if card2 can't be put on top, print it
 		_change_back_card_color(card1)
+		# play the click sound
+		ClickSound._set_playing(true)
 		card1 = null
 	else:
 		# otherwise, print an error message
@@ -533,6 +586,8 @@ func _move_card_to_empty_pile(pile):
 	if card1.card_index == 0:
 		var click_area = pile_start_array[card_1_original_pile_index].get_node("ClickArea")
 		click_area.get_node("Full").set_disabled(false)
+		# set the index of the click area to be 1
+		pile_start_array[card1.pile_index].z_index = 1
 	# if the card is not at the very back and the card isn't flipped, flip the previous card
 	# The previous card is now on top
 	elif card_1_original_card_index > 0:
@@ -541,6 +596,7 @@ func _move_card_to_empty_pile(pile):
 		if not previous_card.is_flipped:
 			previous_card.is_flipped = true
 		previous_card.can_be_placed_on_top = true
+	
 	
 	
 	# for each card under card 1 (including card 1)
@@ -554,8 +610,13 @@ func _move_card_to_empty_pile(pile):
 		_set_card_x_position(removed_card, pile.pile_index)
 		tableau[pile.pile_index].append(removed_card)
 	
+	# play the place card sound
+	PlaceCardSound._set_playing(true)
 	# increment the move counter
 	MoveCounter.counter += 1
+	
+	# set the index of the click area to be 0
+	pile.z_index = -1
 
 
 # move the card from talon to empty pile
@@ -582,8 +643,14 @@ func _move_card_to_empty_pile_from_talon(pile):
 	
 	tableau[pile.pile_index].append(card1)
 	
+	# play the place card sound
+	PlaceCardSound._set_playing(true)
+	
 	# increment the move counter
 	MoveCounter.counter += 1
+	
+	# set the index of the click area to be 0
+	pile.z_index = -1
 
 
 # move the card from foundation to empty pile
@@ -610,8 +677,14 @@ func _move_card_to_empty_pile_from_foundation(pile):
 	# tableau includes card1
 	tableau[pile.pile_index].append(card1)
 	
+	# play the place card sound
+	PlaceCardSound._set_playing(true)
+	
 	# increment the move counter
 	MoveCounter.counter += 1
+	
+	# set the index of the click area to be 1
+	pile.z_index = -1
 
 
 # describes what happens when the user click on the pile start scene
@@ -627,19 +700,29 @@ func _select_pile_start(pile):
 		if card1.rank == "K":
 			# move the card to the empty pile from talon
 			_move_card_to_empty_pile_from_talon(pile)
+		else:
+			# play the click card sound
+			ClickSound._set_playing(true)
 		_change_back_card_color(card1)
 		card1 = null
 	# if card1 is from foundation, and card2 is not selected
 	elif card1.pile_index == -2 and card2 == null:
 		if card1.rank == "K":
 			_move_card_to_empty_pile_from_foundation(pile)
+		else:
+			# play the click card sound
+			ClickSound._set_playing(true)
 		_change_back_card_color(card1)
 		card1 = null
 	# if the first card is selected in tableau, but the second card isn't, run this
 	# card1 can only be put on pile if the rank is K
-	elif card1.pile_index != -1 and card1.pile_index != -2 and card2 == null and card1.rank == "K":
-		# move the card to the empty pile
-		_move_card_to_empty_pile(pile)
+	elif card1.pile_index != -1 and card1.pile_index != -2 and card2 == null:
+		if card1.rank == "K":
+			# move the card to the empty pile
+			_move_card_to_empty_pile(pile)
+		else:
+			# play the click card sound
+			ClickSound._set_playing(true)
 		# change the card color back to its original
 		_change_back_pile_card_color(card1)
 		# reset card1
@@ -647,6 +730,8 @@ func _select_pile_start(pile):
 	elif card1 != null and card2 == null:
 		# change the card color back to its original
 		_change_back_pile_card_color(card1)
+		# play the click card sound
+		ClickSound._set_playing(true)
 		# reset card1
 		card1 = null
 		print("The card is not K")
@@ -660,6 +745,8 @@ func _move_card_to_foundation_from_talon(foundation : Foundation) -> void:
 	card1.pile_index = -2
 	card1.card_index = foundation.suit_index
 	card1.can_be_placed_on_top = true
+	if card1.z_index == 0:
+		card1.z_index = 1
 	if foundation_pile[foundation.suit_index].empty():
 		foundation.disable_click_area()
 		
@@ -677,6 +764,8 @@ func _move_card_to_foundation_from_talon(foundation : Foundation) -> void:
 		# foundation pile adds one card
 		foundation_pile[foundation.suit_index].append(card1)
 		
+		# play the place card sound
+		PlaceCardSound._set_playing(true)
 		# increment the move counter
 		MoveCounter.counter += 1
 	else:
@@ -692,6 +781,12 @@ func _move_card_to_foundation_from_tableau(foundation: Foundation) -> void:
 		if card1.card_index == 0:
 			var click_area = pile_start_array[card1.pile_index].get_node("ClickArea")
 			click_area.get_node("Full").set_disabled(false)
+			
+			if card1.z_index == 0:
+				card1.z_index = 1
+			
+			# set the index of the click area to be 1
+			pile_start_array[card1.pile_index].z_index = 1
 		# if the card is not at the very back, flip the previous card
 		# The previous card is now on top
 		elif card1.card_index > 0:
@@ -710,6 +805,8 @@ func _move_card_to_foundation_from_tableau(foundation: Foundation) -> void:
 		card1.pile_index = -2
 		card1.card_index = foundation.suit_index
 		
+		# play the place card sound
+		PlaceCardSound._set_playing(true)
 		# increment the move counter
 		MoveCounter.counter += 1
 	else:
@@ -735,6 +832,9 @@ func _select_foundation(foundation):
 		if _check_foundation_start_card(foundation):
 			# move the card from talon to foundation, change the card color back, set card to null
 			_move_card_to_foundation_from_talon(foundation)
+		else:
+			# play the click card sound
+			ClickSound._set_playing(true)
 		_change_back_card_color(card1)
 		card1 = null
 		
@@ -751,6 +851,8 @@ func _select_foundation(foundation):
 			_change_back_card_color(card1)
 		else:
 			_change_back_pile_card_color(card1)
+			# play the click card sound
+			ClickSound._set_playing(true)
 		card1 = null
 		
 		# check if the player wins after the current move
@@ -758,6 +860,8 @@ func _select_foundation(foundation):
 	# if card1 is from foundation, cancel the selection
 	elif card1.pile_index == -2:
 		_change_back_card_color(card1)
+		# play the click card sound
+		ClickSound._set_playing(true)
 		card1 = null
 
 
@@ -795,6 +899,8 @@ func _reset_deck():
 	talon_pile.clear()
 	stock.has_card = true
 	
+	# play the shuffle sound
+	ShuffleSound._set_playing(true)
 	# increment the move counter
 	MoveCounter.counter += 1
 
@@ -853,6 +959,8 @@ func _reset_card_to_talon():
 			
 			talon_pile.push_front(card)
 		
+		# play the slidecard sound
+		SlideCardSound._set_playing(true)
 		# increment the move counter
 		MoveCounter.counter += 1
 	

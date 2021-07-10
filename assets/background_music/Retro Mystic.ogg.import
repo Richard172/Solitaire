@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Retro Mystic.ogg-0682cd63209e88e216a85dbaa7e4188f.oggstr"
+
+[deps]
+
+source_file="res://assets/background_music/Retro Mystic.ogg"
+dest_files=[ "res://.import/Retro Mystic.ogg-0682cd63209e88e216a85dbaa7e4188f.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0
