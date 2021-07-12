@@ -41,7 +41,6 @@ func _on_PitchBar_value_changed(value):
 	if value == 0:
 		background_music.set_pitch_scale(MIN_PITCH)
 	if value != 0:
-		background_music._set_playing(true)
 		background_music.set_pitch_scale((MAX_PITCH - MIN_PITCH) * value / pitch_bar.max_value + MIN_PITCH)
 
 
