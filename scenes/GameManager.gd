@@ -1023,6 +1023,8 @@ func _restart_game():
 	_set_foundation()
 	TimerScene.reset_timer()
 	MoveCounter.reset_counter()
+	
+	card1 = null
 
 
 func _check_winning_condition_tableau() -> bool:
@@ -1076,7 +1078,6 @@ func _delete_game():
 # start a new game by filling the deck, and reset the timer and move counter
 func _start_new_game():
 	WinningScreen.hide()
-	
 	_fill_deck()
 	_deal_deck_tableau()
 	_set_pile_start()
@@ -1084,6 +1085,7 @@ func _start_new_game():
 	_set_foundation()
 	TimerScene.reset_timer()
 	MoveCounter.reset_counter()
+	
 
 
 func _set_win_screen_message():
