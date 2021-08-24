@@ -1,3 +1,2 @@
 # Solitaire
- My first game in Godot
- Used Kenny assets
+ My first game in Godot, used Kenny assets
